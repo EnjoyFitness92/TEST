@@ -26,7 +26,7 @@ class readcsv {
                         this.fdata.add(line);
 
                         // Choose 4 or 8 Byte
-                        this.udata.add(line.substring(0, 4));
+                        this.udata.add(line.substring(0, 16));
                     }
                     line = br.readLine();
                 }while (line != null);

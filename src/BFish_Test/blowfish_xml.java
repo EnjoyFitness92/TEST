@@ -21,13 +21,14 @@ class blowfish_xml {
     static byte[] raw;
     String encryptedData,decryptedMessage;
     ArrayList<byte[]> ENC = new ArrayList<byte[]>();
+    ArrayList<String> B_ENC = new ArrayList<String>();
     ArrayList<byte[]> DEC = new ArrayList<byte[]>();
     ArrayList<byte[]> KEY = new ArrayList<byte[]>();
 
     /* Blowfish Instances as a GUI - For the Exercise we need a datastructure to store 2^16 possible encrypted messages */
     public blowfish_xml() {
         // 4 Byte String ("<?xm") or 8 Byte String ("<?xml ve")
-        String xmlMessage = "<?xm";
+        String xmlMessage = "<?xml ve";
         byte[] ibyte = xmlMessage.getBytes();
 
         /* Testing the Length of xmlMessage
@@ -35,7 +36,7 @@ class blowfish_xml {
         JOptionPane.showMessageDialog(null, a);
          */
 
-        for(int i = 0; i < 65536; i++) {
+        for(int i = 0; i < 1048576; i++) {
             try {
                 generateSymmetricKey();
 
@@ -87,7 +88,7 @@ class blowfish_xml {
 
     private static byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
         SecretKeySpec skeySpec = new SecretKeySpec(raw, "Blowfish");
-        Cipher cipher = Cipher.getInstance("Blowfish");
+        Cipher cipher = Cipher.getInstance("Blowfish/ECB/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, skeySpec);
         byte[] decrypted = cipher.doFinal(encrypted);
         return decrypted;
@@ -95,26 +96,38 @@ class blowfish_xml {
 
     private static byte[] encrypt(byte[] raw, byte[] clear) throws Exception {
         SecretKeySpec skeySpec = new SecretKeySpec(raw, "Blowfish");
-        Cipher cipher = Cipher.getInstance("Blowfish");
+        Cipher cipher = Cipher.getInstance("Blowfish/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
         byte[] encrypted = cipher.doFinal(clear);
         return encrypted;
     }
 
-    public static void main(String args[]) {
+    public void b_enc(ArrayList<byte[]> b) {
+        for(byte[] bytes : b) {
+            // StringBuilder apply in other context so you can compare 2 Substrings
+            StringBuilder sb = new StringBuilder();
+            for (byte a : bytes) {
+                sb.append(String.format("%02x", a));
+            }
+            String s = sb.toString();
+            this.B_ENC.add(s);
+        }
+    }
+    public static void main(String[] args) {
 
         blowfish_xml bf = new blowfish_xml();
+        bf.b_enc(bf.ENC);
 
         // Test the code with 10 Examples - prints encrypted + decrypted + key
         for(int i = 0; i < 10; i++) {
             String encrypted = new String(bf.ENC.get(i));
             String key = new String(bf.KEY.get(i));
             String decrypted = new String(bf.DEC.get(i));
-            System.out.println(encrypted + " " + key + " " + decrypted);
+            System.out.println(encrypted + " " + key + " " + decrypted + " " + bf.B_ENC.get(i));
         }
         String dec = new String(bf.DEC.get(0));
         String enc = new String(bf.ENC.get(0));
         String key = new String(bf.KEY.get(0));
-        JOptionPane.showMessageDialog(null,"Encrypted Data "+"\n"+enc + "\n" + "Key " + key + "\n" + "Encrypted Data " + dec );
+        JOptionPane.showMessageDialog(null,"Encrypted Data "+"\n"+enc + "\n" + "Key " + key + "\n" + "Decrypted Data " + dec );
     }
 }

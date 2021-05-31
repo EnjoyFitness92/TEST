@@ -1,5 +1,7 @@
 package BFish_Test;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
@@ -15,19 +17,10 @@ public class Main {
 
     // Function proves if ArrayList b contains an element of ArrayList s
     // if true -> add index of ArrayList s
-
-    public static ArrayList<Integer> equalTo(ArrayList<String> s, ArrayList<byte[]> b){
+    public static ArrayList<Integer> equalTo(@NotNull ArrayList<String> s, ArrayList<String> b){
         ArrayList<Integer> arr_ = new ArrayList<Integer>();
-        for(int i = 0; i < s.size(); i++){
-
-            // StringBuilder apply in other context so you can compare 2 Substrings
-            StringBuilder sb = new StringBuilder();
-            for (byte a : b.get(i)) {
-                sb.append(String.format("%02x", a));
-            }
-            System.out.print("Test: " + sb + " " + s.get(i));
-
-            if(b.contains(s.get(i).getBytes())){
+        for(int i = 0; i < s.size(); i++) {
+            if (b.contains(s.get(i))) {
                 arr_.add(i);
                 arr_fdata.add(i);
             }
@@ -37,7 +30,7 @@ public class Main {
 
     private static byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
         SecretKeySpec skeySpec = new SecretKeySpec(raw, "Blowfish");
-        Cipher cipher = Cipher.getInstance("Blowfish");
+        Cipher cipher = Cipher.getInstance("Blowfish/ECB/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, skeySpec);
         byte[] decrypted = cipher.doFinal(encrypted);
         return decrypted;
@@ -62,6 +55,7 @@ public class Main {
     public static void main(String[] args){
         // Generates the encrypted part of the xml-Header (Choose 4 Byte or 8 Byte Version in blowfish_xml.java)
         blowfish_xml bf_xml = new blowfish_xml();
+        bf_xml.b_enc(bf_xml.ENC);
 
         // Generates data in string rows from pcap data (pcap data extracted with python script in Dir PCAP - output File = rawData_2.csv)
         readcsv rc = new readcsv();
@@ -73,7 +67,7 @@ public class Main {
         // Decrypt rc.fdata with bf_xml.KEY
         // Store decrypted text in txt
         ArrayList<Integer> arr_ = new ArrayList<Integer>();
-        arr_ = equalTo(rc.udata, bf_xml.ENC);
+        arr_ = equalTo(rc.udata, bf_xml.B_ENC);
 
         for(int i = 0; i < arr_.size(); i++){
             try {
